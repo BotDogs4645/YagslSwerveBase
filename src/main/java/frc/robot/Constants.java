@@ -4,14 +4,6 @@ import com.pathplanner.lib.util.PIDConstants;
 
 public class Constants {
     public static class DrivetrainConstants {
-        /* Specifies the robot's drive mode. 
-         * When true, the robot will be in angular velocity.
-         * Angular velocity mode uses the right stick to set the speed at which the robot is turning.
-         * When false, the robot will be in direct angle mode.
-         * Direct angle mode uses the right stick value as a heading, and points the robot in that direction.
-        */
-        public static final boolean useAngularVelocityDriveMode = true;
-
         /* Specifies the Driver Station port index for the driver's controller. */
         public static final int driveControllerPort = 0;
         /* Joystick deadband that will be applied to the drivetrain inputs. */
