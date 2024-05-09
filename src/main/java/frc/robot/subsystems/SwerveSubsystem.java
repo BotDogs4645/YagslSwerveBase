@@ -260,7 +260,7 @@ public class SwerveSubsystem extends SubsystemBase
 
   @Override
   public void periodic() {
-    updateOdometryWithVision("limelight-supadog");
+
   }
 
   @Override
@@ -425,6 +425,14 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public void lock() {
     swerveDrive.lockPose();
+  }
+
+  /**
+   * Set all velocities to zero to stop the robot from moving.
+   * If this isn't called when disabling in simulation the robot will continue to move.
+   */
+  public void stop() {
+    swerveDrive.drive(new ChassisSpeeds(0, 0, 0));
   }
 
   /**

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private Command m_teleopCommand;
 
   private RobotContainer m_robotContainer;
 
@@ -29,6 +30,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
+    // Unschedule commands
+    if (m_autonomousCommand != null)
+      m_autonomousCommand.cancel();
+    if (m_teleopCommand != null)
+      m_teleopCommand.cancel();
+
+
+    // Set velocity to zero when the robot is disabled.
+    m_robotContainer.stop();
+
     /* Enable brakes when robot is disabled to stop immediatly 
      * Then, set a timer so breaks can be disabled and the robot can be pushed.
     */
@@ -55,6 +66,8 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
+      /* Enable motor braking when the robot is enabled so the robot does not coast. */
+      m_robotContainer.setMotorBrake(true);
       m_autonomousCommand.schedule();
     }
   }
@@ -67,11 +80,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    m_teleopCommand = m_robotContainer.getTeleopCommand();
+    if (m_teleopCommand != null) {
+      /* Enable motor braking when the robot is enabled so the robot does not coast. */
+      m_robotContainer.setMotorBrake(true);
+
+      m_teleopCommand.schedule();
     }
-    /* Enable motor braking when the robot is enabled so the robot does not coast. */
-    m_robotContainer.setMotorBrake(true);
   }
 
   @Override

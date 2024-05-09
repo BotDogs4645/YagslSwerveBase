@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DrivetrainConstants;
+import frc.robot.commands.VisionCommands;
 import frc.robot.subsystems.SwerveSubsystem;
 
 
@@ -29,28 +30,6 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
-    /* FieldOrientedAngularVelocity will set the robot's angular velocity based on the right stick. */
-    /* Is field oriented unless right bumper is pressed. */
-    Command driveAnglularVelocity = swerveSubsystem.driveCommandAngularVelocity(
-        () -> MathUtil.applyDeadband(-driveController.getLeftY(), DrivetrainConstants.stickDeadband),
-        () -> MathUtil.applyDeadband(-driveController.getLeftX(), DrivetrainConstants.stickDeadband),
-        () -> MathUtil.applyDeadband(-driveController.getRightX(), DrivetrainConstants.stickDeadband),
-        () -> driveController.rightBumper().getAsBoolean());
-
-    /* FieldOrientedDirectAngle will set the robot's target angle based on the right stick. */
-    /* Is field oriented. */
-    Command driveDirectAngle = swerveSubsystem.driveCommandDirectAngle(
-      () -> MathUtil.applyDeadband(driveController.getLeftY(), DrivetrainConstants.stickDeadband),
-      () -> MathUtil.applyDeadband(driveController.getLeftX(), DrivetrainConstants.stickDeadband),
-      () -> driveController.getRightX(),
-      () -> driveController.getRightY());
-
-    swerveSubsystem.setDefaultCommand(
-      Constants.DrivetrainConstants.useAngularVelocityDriveMode ? 
-      driveAnglularVelocity : 
-      driveDirectAngle
-    );
-
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("PathPlanner Auto", autoChooser);
 
@@ -62,11 +41,29 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    //return autoChooser.getSelected();
+    return VisionCommands.aimAtTarget("limelight-supadog", swerveSubsystem); 
+  }
+
+  public Command getTeleopCommand() {
+    /* FieldOrientedAngularVelocity will set the robot's angular velocity based on the right stick. */
+    /* Is field oriented unless right bumper is pressed. */
+
+    return swerveSubsystem.driveCommandAngularVelocity(
+      () -> MathUtil.applyDeadband(-driveController.getLeftY(), DrivetrainConstants.stickDeadband),
+      () -> MathUtil.applyDeadband(-driveController.getLeftX(), DrivetrainConstants.stickDeadband),
+      () -> MathUtil.applyDeadband(-driveController.getRightX(), DrivetrainConstants.stickDeadband),
+      () -> driveController.rightBumper().getAsBoolean()
+    ).alongWith(Commands.run(() -> swerveSubsystem.updateOdometryWithVision("limelight-supadog")));
   }
 
   public void setMotorBrake(boolean brake)
   {
     swerveSubsystem.setMotorBrake(brake);
+  }
+
+  public void stop()
+  {
+    swerveSubsystem.stop();
   }
 }
